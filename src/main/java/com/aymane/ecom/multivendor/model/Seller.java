@@ -36,6 +36,8 @@ public class Seller {
     @OneToOne(cascade = CascadeType.ALL)
     private Address pickupAddress = new Address();
 
+    private String GSTIN;
+
     private UserRole role;
 
     private boolean isMailVerified = false;

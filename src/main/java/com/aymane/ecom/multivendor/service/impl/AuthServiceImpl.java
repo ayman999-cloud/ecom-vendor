@@ -12,7 +12,7 @@ import com.aymane.ecom.multivendor.repository.UserRepository;
 import com.aymane.ecom.multivendor.repository.VerificationCodeRepository;
 import com.aymane.ecom.multivendor.service.AuthService;
 import com.aymane.ecom.multivendor.service.EmailService;
-import com.aymane.ecom.multivendor.service.LoginRequest;
+import com.aymane.ecom.multivendor.controller.request.LoginRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

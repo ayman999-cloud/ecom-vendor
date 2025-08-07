@@ -1,5 +1,6 @@
 package com.aymane.ecom.multivendor.service;
 
+import com.aymane.ecom.multivendor.controller.request.LoginRequest;
 import com.aymane.ecom.multivendor.controller.response.AuthResponse;
 import com.aymane.ecom.multivendor.controller.response.SignupRequest;
 

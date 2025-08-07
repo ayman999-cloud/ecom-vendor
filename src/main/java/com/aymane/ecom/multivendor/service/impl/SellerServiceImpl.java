@@ -2,7 +2,9 @@ package com.aymane.ecom.multivendor.service.impl;
 
 import com.aymane.ecom.multivendor.config.JwtProvider;
 import com.aymane.ecom.multivendor.domain.AccountStatus;
+import com.aymane.ecom.multivendor.model.Address;
 import com.aymane.ecom.multivendor.model.Seller;
+import com.aymane.ecom.multivendor.repository.AddressRepository;
 import com.aymane.ecom.multivendor.repository.SellerRepository;
 import com.aymane.ecom.multivendor.service.SellerService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class SellerServiceImpl implements SellerService {
     private final SellerRepository sellerRepository;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
+    private final AddressRepository addressRepository;
 
     @Override
     public Seller getSellerProfile(final String jwt) throws Exception {
@@ -36,12 +39,25 @@ public class SellerServiceImpl implements SellerService {
         if (Objects.nonNull(sellerExist)) {
             throw new Exception("Seller already exist, use different email");
         }
-        return this.sellerRepository.save(seller);
+        final Address savedAddress = addressRepository.save(seller.getPickupAddress());
+        return this.sellerRepository.save(Seller
+                .builder()
+                .email(seller.getEmail())
+                .password(seller.getPassword())
+                .sellerName(seller.getSellerName())
+                .pickupAddress(savedAddress)
+                .GSTIN(seller.getGSTIN())
+                .role(seller.getRole())
+                .mobile(seller.getMobile())
+                .bankDetails(seller.getBankDetails())
+                .businessDetails(seller.getBusinessDetails())
+                .build());
     }
 
     @Override
-    public Seller gerSellerById(Long id) {
-        return null;
+    public Seller getSellerById(Long id) throws Exception {
+        return this.sellerRepository.findById(id)
+                .orElseThrow(() -> new Exception("Seller not found with Id: " + id));
     }
 
     @Override
@@ -55,26 +71,73 @@ public class SellerServiceImpl implements SellerService {
 
     @Override
     public List<Seller> getAllSellers(AccountStatus status) {
-        return List.of();
+        return this.sellerRepository.findByAccountStatus(status);
     }
 
     @Override
-    public Seller updateSeller(Long id, Seller seller) {
-        return null;
+    public Seller updateSeller(Long id, Seller seller) throws Exception {
+        final Seller sellerToUpdate = this.getSellerById(id);
+
+        if (seller.getSellerName() != null) {
+            sellerToUpdate.setSellerName(seller.getSellerName());
+        }
+
+        if (seller.getMobile() != null) {
+            sellerToUpdate.setMobile(seller.getMobile());
+        }
+
+        if (seller.getEmail() != null) {
+            sellerToUpdate.setEmail(seller.getEmail());
+        }
+
+        if (seller.getBusinessDetails() != null &&
+                seller.getBusinessDetails().getBusinessName() != null) {
+            sellerToUpdate.getBusinessDetails().setBusinessName(seller.getBusinessDetails().getBusinessName());
+        }
+
+        if (seller.getBankDetails() != null
+                && seller.getBankDetails().getAccountHolderName() != null
+                && seller.getBankDetails().getIfscCode() != null
+                && seller.getBankDetails().getAccountNumber() != null) {
+            sellerToUpdate.getBankDetails().setAccountHolderName(seller.getBankDetails().getAccountHolderName());
+            sellerToUpdate.getBankDetails().setIfscCode(seller.getBankDetails().getIfscCode());
+            sellerToUpdate.getBankDetails().setAccountNumber(seller.getBankDetails().getAccountNumber());
+        }
+
+        if (seller.getPickupAddress() != null
+                && seller.getPickupAddress().getAddress() != null
+                && seller.getPickupAddress().getMobile() != null
+                && seller.getPickupAddress().getCity() != null
+                && seller.getPickupAddress().getState() != null) {
+            sellerToUpdate.getPickupAddress().setAddress(seller.getPickupAddress().getAddress());
+            sellerToUpdate.getPickupAddress().setCity(seller.getPickupAddress().getCity());
+            sellerToUpdate.getPickupAddress().setState(seller.getPickupAddress().getState());
+            sellerToUpdate.getPickupAddress().setMobile(seller.getPickupAddress().getMobile());
+        }
+
+        if (seller.getGSTIN() != null) {
+            sellerToUpdate.setGSTIN(seller.getGSTIN());
+        }
+
+        return sellerRepository.save(sellerToUpdate);
     }
 
     @Override
-    public void deleteSeller(Long id) {
-
+    public void deleteSeller(Long id) throws Exception {
+        sellerRepository.delete(this.getSellerById(id));
     }
 
     @Override
-    public Seller verifyEmail(String email, String otp) {
-        return null;
+    public Seller verifyEmail(String email, String otp) throws Exception {
+        Seller sellerToDelete = this.getSellerByEmail(email);
+        sellerToDelete.setMailVerified(true);
+        return this.sellerRepository.save(sellerToDelete);
     }
 
     @Override
-    public Seller updateSellerAccountStatus(Long sellerId, AccountStatus status) {
-        return null;
+    public Seller updateSellerAccountStatus(Long sellerId, AccountStatus status) throws Exception {
+        Seller sellerToUpdate = this.getSellerById(sellerId);
+        sellerToUpdate.setAccountStatus(status);
+        return this.sellerRepository.save(sellerToUpdate);
     }
 }

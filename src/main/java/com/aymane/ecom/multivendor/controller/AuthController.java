@@ -7,7 +7,7 @@ import com.aymane.ecom.multivendor.domain.UserRole;
 import com.aymane.ecom.multivendor.model.VerificationCode;
 import com.aymane.ecom.multivendor.repository.UserRepository;
 import com.aymane.ecom.multivendor.service.AuthService;
-import com.aymane.ecom.multivendor.service.LoginRequest;
+import com.aymane.ecom.multivendor.controller.request.LoginRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,7 +46,7 @@ public class AuthController {
     }
 
     @PostMapping("sign-in")
-    public ResponseEntity<AuthResponse> sentOtpHandler(@RequestBody final LoginRequest loginRequest) throws Exception {
+    public ResponseEntity<AuthResponse> loginUserHandler(@RequestBody final LoginRequest loginRequest) throws Exception {
 
         final AuthResponse authResponse = authService.signin(loginRequest);
 
