@@ -1,5 +1,6 @@
 package com.aymane.ecom.multivendor.controller;
 
+import com.aymane.ecom.multivendor.controller.request.LoginOtpRequest;
 import com.aymane.ecom.multivendor.controller.response.ApiResponse;
 import com.aymane.ecom.multivendor.controller.response.AuthResponse;
 import com.aymane.ecom.multivendor.controller.response.SignupRequest;
@@ -37,12 +38,12 @@ public class AuthController {
     }
 
     @PostMapping("send/otp")
-    public ResponseEntity<ApiResponse> sentOtpHandler(@RequestBody final VerificationCode verificationCode) throws Exception {
+    public ResponseEntity<ApiResponse> sentOtpHandler(@RequestBody final LoginOtpRequest loginOtpRequest) throws Exception {
 
-        authService.sentLoginOtp(verificationCode.getEmail());
+        authService.sentLoginOtp(loginOtpRequest.getEmail(), loginOtpRequest.getRole());
 
         return ResponseEntity.ok(ApiResponse.builder().message("OTP sent Successfully for email " +
-                verificationCode.getEmail()).build());
+                loginOtpRequest.getEmail()).build());
     }
 
     @PostMapping("sign-in")

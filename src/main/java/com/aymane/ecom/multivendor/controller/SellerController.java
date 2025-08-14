@@ -1,7 +1,9 @@
 package com.aymane.ecom.multivendor.controller;
 
 import com.aymane.ecom.multivendor.controller.request.LoginRequest;
+import com.aymane.ecom.multivendor.controller.response.ApiResponse;
 import com.aymane.ecom.multivendor.controller.response.AuthResponse;
+import com.aymane.ecom.multivendor.model.VerificationCode;
 import com.aymane.ecom.multivendor.repository.VerificationCodeRepository;
 import com.aymane.ecom.multivendor.service.AuthService;
 import com.aymane.ecom.multivendor.service.SellerService;
@@ -26,5 +28,6 @@ public class SellerController {
         loginRequest.setEmail("seller_" + loginRequest.getEmail());
         return ResponseEntity.ok(this.authService.signin(loginRequest));
     }
+
 
 }
