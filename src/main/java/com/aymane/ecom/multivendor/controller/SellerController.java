@@ -11,8 +11,6 @@ import com.aymane.ecom.multivendor.repository.VerificationCodeRepository;
 import com.aymane.ecom.multivendor.service.AuthService;
 import com.aymane.ecom.multivendor.service.EmailService;
 import com.aymane.ecom.multivendor.service.SellerService;
-import com.aymane.ecom.multivendor.utils.OtpUtil;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
