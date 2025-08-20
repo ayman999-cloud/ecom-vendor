@@ -129,9 +129,9 @@ public class SellerServiceImpl implements SellerService {
 
     @Override
     public Seller verifyEmail(String email, String otp) throws Exception {
-        Seller sellerToDelete = this.getSellerByEmail(email);
-        sellerToDelete.setMailVerified(true);
-        return this.sellerRepository.save(sellerToDelete);
+        Seller sellerToVerify = this.getSellerByEmail(email);
+        sellerToVerify.setMailVerified(true);
+        return this.sellerRepository.save(sellerToVerify);
     }
 
     @Override

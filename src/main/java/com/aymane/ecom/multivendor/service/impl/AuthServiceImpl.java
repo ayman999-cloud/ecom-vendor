@@ -88,18 +88,14 @@ public class AuthServiceImpl implements AuthService {
 
         if (email.startsWith(SIGNIN_PREFIX)) {
             email = email.substring(SIGNIN_PREFIX.length());
-
-            if (userRole.equals(UserRole.CUSTOMER)) {
-
-                final User user = userRepository.findByEmail(email);
-
-                if (Objects.isNull(user)) {
-                    throw new Exception("User not exist with the provided email");
-                }
-            } else if (userRole.equals(UserRole.SELLER)) {
-
+            if (userRole.equals(UserRole.SELLER)) {
                 final Seller seller = sellerRepository.findByEmail(email);
                 if (Objects.isNull(seller)) {
+                    throw new Exception("User not exist with the provided email");
+                }
+            } else {
+                final User user = userRepository.findByEmail(email);
+                if (Objects.isNull(user)) {
                     throw new Exception("User not exist with the provided email");
                 }
             }
