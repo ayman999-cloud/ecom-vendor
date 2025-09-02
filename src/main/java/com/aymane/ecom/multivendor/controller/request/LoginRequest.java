@@ -1,4 +1,4 @@
-package com.aymane.ecom.multivendor.service;
+package com.aymane.ecom.multivendor.controller.request;
 
 import lombok.*;
 

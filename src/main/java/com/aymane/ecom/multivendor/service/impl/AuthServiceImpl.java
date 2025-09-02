@@ -5,14 +5,16 @@ import com.aymane.ecom.multivendor.controller.response.AuthResponse;
 import com.aymane.ecom.multivendor.controller.response.SignupRequest;
 import com.aymane.ecom.multivendor.domain.UserRole;
 import com.aymane.ecom.multivendor.model.Cart;
+import com.aymane.ecom.multivendor.model.Seller;
 import com.aymane.ecom.multivendor.model.User;
 import com.aymane.ecom.multivendor.model.VerificationCode;
 import com.aymane.ecom.multivendor.repository.CartRepository;
+import com.aymane.ecom.multivendor.repository.SellerRepository;
 import com.aymane.ecom.multivendor.repository.UserRepository;
 import com.aymane.ecom.multivendor.repository.VerificationCodeRepository;
 import com.aymane.ecom.multivendor.service.AuthService;
 import com.aymane.ecom.multivendor.service.EmailService;
-import com.aymane.ecom.multivendor.service.LoginRequest;
+import com.aymane.ecom.multivendor.controller.request.LoginRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,12 +39,14 @@ import static com.aymane.ecom.multivendor.utils.OtpUtil.generateOtp;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
+    private final SellerRepository sellerRepository;
     private final PasswordEncoder passwordEncoder;
     private final CartRepository cartRepository;
     private final JwtProvider jwtProvider;
     private final EmailService emailService;
     private final VerificationCodeRepository verificationCodeRepository;
     private final CustomUserServiceImpl customUserService;
+    private static final String SELLER_PREFIX = "seller_";
 
     @Override
     public String createUser(final SignupRequest signupRequest) throws Exception {
@@ -80,38 +84,45 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void sentLoginOtp(String email) throws Exception {
-        final String SIGNIN_PREFIX = "signin_";
+    public void sentLoginOtp(String email, final UserRole userRole) throws Exception {
+        final String SIGNIN_PREFIX = "signing_";
 
         if (email.startsWith(SIGNIN_PREFIX)) {
             email = email.substring(SIGNIN_PREFIX.length());
-            final User user = userRepository.findByEmail(email);
-
-            if (Objects.isNull(user)) {
-                throw new Exception("User not exist with the provided email");
+            if (userRole.equals(UserRole.SELLER)) {
+                final Seller seller = sellerRepository.findByEmail(email);
+                if (Objects.isNull(seller)) {
+                    throw new Exception("Seller not exist with the provided email");
+                }
+            } else {
+                final User user = userRepository.findByEmail(email);
+                if (Objects.isNull(user)) {
+                    throw new Exception("User not exist with the provided email");
+                }
             }
         }
 
-            final VerificationCode verificationCode = verificationCodeRepository.findByEmail(email);
 
-            if (Objects.nonNull(verificationCode)) {
-                verificationCodeRepository.delete(verificationCode);
-            }
+        final VerificationCode verificationCode = verificationCodeRepository.findByEmail(email);
 
-            final String otp = generateOtp();
-            final VerificationCode verificationCodeNew = new VerificationCode();
-            verificationCodeNew.setOtp(otp);
-            verificationCodeNew.setEmail(email);
-            verificationCodeRepository.save(verificationCodeNew);
+        if (Objects.nonNull(verificationCode)) {
+            verificationCodeRepository.delete(verificationCode);
+        }
 
-            // Sent the verification code OTP mail
-            final String subject = "OTP verified";
-            final String body = "Your OTP is: " + otp;
-            emailService.sendVerificationOtpEmail(
-                    email,
-                    otp,
-                    subject,
-                    body);
+        final String otp = generateOtp();
+        final VerificationCode verificationCodeNew = new VerificationCode();
+        verificationCodeNew.setOtp(otp);
+        verificationCodeNew.setEmail(email);
+        verificationCodeRepository.save(verificationCodeNew);
+
+        // Sent the verification code OTP mail
+        final String subject = "OTP verified";
+        final String body = "Your OTP is: " + otp;
+        emailService.sendVerificationOtpEmail(
+                email,
+                otp,
+                subject,
+                body);
     }
 
     @Override
@@ -132,10 +143,15 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-    private Authentication authenticate(final String username, final String otp) {
+    private Authentication authenticate(String username, final String otp) {
+
         final UserDetails userDetails = customUserService.loadUserByUsername(username);
         if (Objects.isNull(userDetails)) {
             throw new BadCredentialsException("Invalid username or password");
+        }
+
+        if (username.startsWith(SELLER_PREFIX)) {
+            username = username.substring(SELLER_PREFIX.length());
         }
 
         final VerificationCode verificationCode = verificationCodeRepository.findByEmail(username);

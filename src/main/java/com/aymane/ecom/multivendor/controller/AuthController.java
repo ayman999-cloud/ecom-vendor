@@ -1,5 +1,6 @@
 package com.aymane.ecom.multivendor.controller;
 
+import com.aymane.ecom.multivendor.controller.request.LoginOtpRequest;
 import com.aymane.ecom.multivendor.controller.response.ApiResponse;
 import com.aymane.ecom.multivendor.controller.response.AuthResponse;
 import com.aymane.ecom.multivendor.controller.response.SignupRequest;
@@ -7,7 +8,7 @@ import com.aymane.ecom.multivendor.domain.UserRole;
 import com.aymane.ecom.multivendor.model.VerificationCode;
 import com.aymane.ecom.multivendor.repository.UserRepository;
 import com.aymane.ecom.multivendor.service.AuthService;
-import com.aymane.ecom.multivendor.service.LoginRequest;
+import com.aymane.ecom.multivendor.controller.request.LoginRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,16 +38,15 @@ public class AuthController {
     }
 
     @PostMapping("send/otp")
-    public ResponseEntity<ApiResponse> sentOtpHandler(@RequestBody final VerificationCode verificationCode) throws Exception {
+    public ResponseEntity<ApiResponse> sentOtpHandler(@RequestBody final LoginOtpRequest loginOtpRequest) throws Exception {
 
-        authService.sentLoginOtp(verificationCode.getEmail());
+        authService.sentLoginOtp(loginOtpRequest.getEmail(), loginOtpRequest.getRole());
 
-        return ResponseEntity.ok(ApiResponse.builder().message("OTP sent Successfully for email " +
-                verificationCode.getEmail()).build());
+        return ResponseEntity.ok(ApiResponse.builder().message("OTP sent Successfully").build());
     }
 
     @PostMapping("sign-in")
-    public ResponseEntity<AuthResponse> sentOtpHandler(@RequestBody final LoginRequest loginRequest) throws Exception {
+    public ResponseEntity<AuthResponse> loginUserHandler(@RequestBody final LoginRequest loginRequest) throws Exception {
 
         final AuthResponse authResponse = authService.signin(loginRequest);
 
