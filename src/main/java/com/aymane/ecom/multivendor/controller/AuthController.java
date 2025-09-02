@@ -42,8 +42,7 @@ public class AuthController {
 
         authService.sentLoginOtp(loginOtpRequest.getEmail(), loginOtpRequest.getRole());
 
-        return ResponseEntity.ok(ApiResponse.builder().message("OTP sent Successfully for email " +
-                loginOtpRequest.getEmail()).build());
+        return ResponseEntity.ok(ApiResponse.builder().message("OTP sent Successfully").build());
     }
 
     @PostMapping("sign-in")

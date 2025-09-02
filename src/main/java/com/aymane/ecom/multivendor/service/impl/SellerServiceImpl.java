@@ -2,6 +2,8 @@ package com.aymane.ecom.multivendor.service.impl;
 
 import com.aymane.ecom.multivendor.config.JwtProvider;
 import com.aymane.ecom.multivendor.domain.AccountStatus;
+import com.aymane.ecom.multivendor.domain.UserRole;
+import com.aymane.ecom.multivendor.exception.SellerException;
 import com.aymane.ecom.multivendor.model.Address;
 import com.aymane.ecom.multivendor.model.Seller;
 import com.aymane.ecom.multivendor.repository.AddressRepository;
@@ -43,21 +45,22 @@ public class SellerServiceImpl implements SellerService {
         return this.sellerRepository.save(Seller
                 .builder()
                 .email(seller.getEmail())
-                .password(seller.getPassword())
+                .password(passwordEncoder.encode(seller.getPassword()))
                 .sellerName(seller.getSellerName())
                 .pickupAddress(savedAddress)
-                .GSTIN(seller.getGSTIN())
-                .role(seller.getRole())
+                .gstin(seller.getGstin())
+                .role(UserRole.SELLER)
                 .mobile(seller.getMobile())
                 .bankDetails(seller.getBankDetails())
                 .businessDetails(seller.getBusinessDetails())
+                .accountStatus(AccountStatus.PENDING_VERIFICATION)
                 .build());
     }
 
     @Override
-    public Seller getSellerById(Long id) throws Exception {
+    public Seller getSellerById(Long id) throws SellerException {
         return this.sellerRepository.findById(id)
-                .orElseThrow(() -> new Exception("Seller not found with Id: " + id));
+                .orElseThrow(() -> new SellerException("Seller not found with Id: " + id));
     }
 
     @Override
@@ -115,8 +118,8 @@ public class SellerServiceImpl implements SellerService {
             sellerToUpdate.getPickupAddress().setMobile(seller.getPickupAddress().getMobile());
         }
 
-        if (seller.getGSTIN() != null) {
-            sellerToUpdate.setGSTIN(seller.getGSTIN());
+        if (seller.getGstin() != null) {
+            sellerToUpdate.setGstin(seller.getGstin());
         }
 
         return sellerRepository.save(sellerToUpdate);

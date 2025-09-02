@@ -46,6 +46,7 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final VerificationCodeRepository verificationCodeRepository;
     private final CustomUserServiceImpl customUserService;
+    private static final String SELLER_PREFIX = "seller_";
 
     @Override
     public String createUser(final SignupRequest signupRequest) throws Exception {
@@ -91,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
             if (userRole.equals(UserRole.SELLER)) {
                 final Seller seller = sellerRepository.findByEmail(email);
                 if (Objects.isNull(seller)) {
-                    throw new Exception("User not exist with the provided email");
+                    throw new Exception("Seller not exist with the provided email");
                 }
             } else {
                 final User user = userRepository.findByEmail(email);
@@ -142,10 +143,15 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-    private Authentication authenticate(final String username, final String otp) {
+    private Authentication authenticate(String username, final String otp) {
+
         final UserDetails userDetails = customUserService.loadUserByUsername(username);
         if (Objects.isNull(userDetails)) {
             throw new BadCredentialsException("Invalid username or password");
+        }
+
+        if (username.startsWith(SELLER_PREFIX)) {
+            username = username.substring(SELLER_PREFIX.length());
         }
 
         final VerificationCode verificationCode = verificationCodeRepository.findByEmail(username);

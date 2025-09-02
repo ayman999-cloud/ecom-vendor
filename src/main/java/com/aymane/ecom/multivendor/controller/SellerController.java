@@ -4,6 +4,7 @@ import com.aymane.ecom.multivendor.config.JwtProvider;
 import com.aymane.ecom.multivendor.controller.request.LoginRequest;
 import com.aymane.ecom.multivendor.controller.response.AuthResponse;
 import com.aymane.ecom.multivendor.domain.AccountStatus;
+import com.aymane.ecom.multivendor.exception.SellerException;
 import com.aymane.ecom.multivendor.model.Seller;
 import com.aymane.ecom.multivendor.model.SellerReport;
 import com.aymane.ecom.multivendor.model.VerificationCode;
@@ -65,8 +66,8 @@ public class SellerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Seller> getSellerById(@PathVariable final Long sellerId) throws Exception {
-        final Seller seller = this.sellerService.getSellerById(sellerId);
+    public ResponseEntity<Seller> getSellerById(@PathVariable final Long id) throws SellerException {
+        final Seller seller = this.sellerService.getSellerById(id);
         return ResponseEntity.ok(seller);
     }
 

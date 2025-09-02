@@ -5,6 +5,8 @@ import com.aymane.ecom.multivendor.domain.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
+import static com.aymane.ecom.multivendor.domain.UserRole.SELLER;
+
 @Entity
 @Getter
 @Setter
@@ -13,7 +15,6 @@ import lombok.*;
 @Builder
 @EqualsAndHashCode
 public class Seller {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,9 +37,9 @@ public class Seller {
     @OneToOne(cascade = CascadeType.ALL)
     private Address pickupAddress = new Address();
 
-    private String GSTIN;
+    private String gstin;
 
-    private UserRole role;
+    private UserRole role = SELLER;
 
     private boolean isMailVerified = false;
 
