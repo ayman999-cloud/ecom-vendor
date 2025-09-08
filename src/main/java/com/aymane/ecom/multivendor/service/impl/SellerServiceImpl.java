@@ -27,10 +27,10 @@ public class SellerServiceImpl implements SellerService {
     private final AddressRepository addressRepository;
 
     @Override
-    public Seller getSellerProfile(final String jwt) throws Exception {
+    public Seller getSellerProfile(final String jwt) throws SellerException {
         final String sellerEmail = this.jwtProvider.getEmailFromToken(jwt);
         if (Strings.isEmpty(sellerEmail)) {
-            throw new Exception("Token not valid");
+            throw new SellerException("Token not valid");
         }
         return this.getSellerByEmail(sellerEmail);
     }
@@ -64,10 +64,10 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public Seller getSellerByEmail(String email) throws Exception {
+    public Seller getSellerByEmail(String email) throws SellerException {
         final Seller seller = this.sellerRepository.findByEmail(email);
         if (Objects.isNull(seller)) {
-            throw new Exception("User not found ...");
+            throw new SellerException("User not found ...");
         }
         return seller;
     }
