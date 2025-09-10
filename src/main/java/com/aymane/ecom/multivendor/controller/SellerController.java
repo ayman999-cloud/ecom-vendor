@@ -11,6 +11,7 @@ import com.aymane.ecom.multivendor.model.VerificationCode;
 import com.aymane.ecom.multivendor.repository.VerificationCodeRepository;
 import com.aymane.ecom.multivendor.service.AuthService;
 import com.aymane.ecom.multivendor.service.EmailService;
+import com.aymane.ecom.multivendor.service.SellerReportService;
 import com.aymane.ecom.multivendor.service.SellerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ public class SellerController {
     private final AuthService authService;
     private final EmailService emailService;
     private final JwtProvider jwtProvider;
+    private final SellerReportService sellerReportService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> loginSeller(@RequestBody final LoginRequest loginRequest) {
@@ -77,12 +79,6 @@ public class SellerController {
         return ResponseEntity.ok(seller);
     }
 
-    @GetMapping("/report")
-    public ResponseEntity<SellerReport> getSellerReport(
-            @RequestHeader("Authorization") String jwt) {
-        return null;
-    }
-
     @GetMapping
     public ResponseEntity<List<Seller>> getAllSellers(@RequestParam(required = false) final AccountStatus accountStatus) {
         List<Seller> allSellers = this.sellerService.getAllSellers(accountStatus);
@@ -102,6 +98,12 @@ public class SellerController {
     public ResponseEntity<Void> deleteSeller(@PathVariable final Long id) throws Exception {
         this.sellerService.deleteSeller(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/report")
+    public ResponseEntity<SellerReport> getSellerReport(@RequestHeader("Authorization") String jwt) throws SellerException {
+        final Seller seller = this.sellerService.getSellerProfile(jwt);
+        return ResponseEntity.ok(this.sellerReportService.getSellerReport(seller));
     }
 
 
