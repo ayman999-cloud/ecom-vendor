@@ -10,7 +10,7 @@ import com.aymane.ecom.multivendor.model.SellerReport;
 import com.aymane.ecom.multivendor.model.VerificationCode;
 import com.aymane.ecom.multivendor.repository.VerificationCodeRepository;
 import com.aymane.ecom.multivendor.service.AuthService;
-import com.aymane.ecom.multivendor.service.EmailService;
+import com.aymane.ecom.multivendor.service.impl.EmailService;
 import com.aymane.ecom.multivendor.service.SellerReportService;
 import com.aymane.ecom.multivendor.service.SellerService;
 import lombok.RequiredArgsConstructor;

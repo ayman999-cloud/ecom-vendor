@@ -3,7 +3,9 @@ package com.aymane.ecom.multivendor.controller;
 import com.aymane.ecom.multivendor.controller.response.PaymentLinkResponse;
 import com.aymane.ecom.multivendor.domain.PaymentMethod;
 import com.aymane.ecom.multivendor.model.*;
+import com.aymane.ecom.multivendor.repository.PaymentOrderRepository;
 import com.aymane.ecom.multivendor.service.*;
+import com.razorpay.PaymentLink;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,8 @@ public class OrderController {
     private final CartService cartService;
     private final SellerService sellerService;
     private final SellerReportService sellerReportService;
+    private final PaymentService paymentService;
+    private final PaymentOrderRepository paymentOrderRepository;
 
     @PostMapping
     public ResponseEntity<PaymentLinkResponse> createOrderHandler(@RequestHeader("Authorization") String jwt,
@@ -31,7 +35,24 @@ public class OrderController {
 
         final Set<Order> orders = this.orderService.createOrder(user, shippingAddress, cart);
 
+        final PaymentOrder paymentOrder = this.paymentService.createOrder(user, orders);
+
         final PaymentLinkResponse res = new PaymentLinkResponse();
+
+        if (paymentMethod.equals(PaymentMethod.RAZORPAY)) {
+            final PaymentLink paymentLink = this.paymentService.createRazorPayPaymentLink(user, paymentOrder.getAmount(), paymentOrder.getId());
+            final String paymentUrl = paymentLink.get("short_url");
+            final String paymentUrlIrd = paymentLink.get("id");
+
+            res.setPaymentLinkUrl(paymentUrl);
+
+            paymentOrder.setPaymentLinkId(paymentUrlIrd);
+
+            this.paymentOrderRepository.save(paymentOrder);
+        } else {
+            final String stripePaymentLink = this.paymentService.createStripePaymentLink(user, paymentOrder.getAmount(), paymentOrder.getId());
+            res.setPaymentLinkUrl(stripePaymentLink);
+        }
 
         return ResponseEntity.ok(res);
     }
